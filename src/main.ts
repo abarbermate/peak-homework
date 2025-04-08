@@ -28,6 +28,13 @@ async function bootstrap() {
     }),
   );
 
+  const defaultCorsOrigins = [/http:\/\/localhost:4000/, /https:\/\/(.*)\.vercel\.app/];
+
+  app.enableCors({
+    origin: process.env.CORS_DOMAINS?.split(',')?.map((item) => new RegExp(item)) ?? defaultCorsOrigins,
+    credentials: true,
+  });
+
   await app.listen(process.env.PORT ?? 3000);
 }
 void bootstrap();
