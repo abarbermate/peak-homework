@@ -1,12 +1,21 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiResponse } from '@nestjs/swagger';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor() {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successful health check',
+    schema: {
+      type: 'string',
+      example: 'ok',
+    },
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get('/health')
+  health(): string {
+    return 'ok';
   }
 }
