@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
@@ -33,6 +33,10 @@ async function bootstrap() {
   app.enableCors({
     origin: process.env.CORS_DOMAINS?.split(',')?.map((item) => new RegExp(item)) ?? defaultCorsOrigins,
     credentials: true,
+  });
+
+  app.enableVersioning({
+    type: VersioningType.URI,
   });
 
   await app.listen(process.env.PORT ?? 3000);
