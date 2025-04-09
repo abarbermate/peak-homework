@@ -2,6 +2,7 @@ import { createKeyv, Keyv } from '@keyv/redis';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheableMemory } from 'cacheable';
 
@@ -11,6 +12,7 @@ import CacheConfig, { CacheConfigType } from '@app/common/configs/cache.config';
 import DatabaseConfig, { DatabaseConfigType } from '@app/common/configs/database.config';
 import LoggerConfig from '@app/common/configs/logger.config';
 import { LoggerModule } from '@app/modules/logger/logger.module';
+import { StockModule } from '@app/modules/stock/stock.module';
 import { StockQuoteModule } from '@app/modules/stock-quote/stock-quote.module';
 
 @Module({
@@ -39,7 +41,9 @@ import { StockQuoteModule } from '@app/modules/stock-quote/stock-quote.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => configService.get<DatabaseConfigType>('database') ?? {},
     }),
+    ScheduleModule.forRoot(),
     LoggerModule,
+    StockModule,
     StockQuoteModule,
   ],
   controllers: [AppController],
