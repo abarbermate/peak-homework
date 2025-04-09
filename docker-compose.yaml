@@ -1,0 +1,38 @@
+services:
+  redis:
+    hostname: redis
+    container_name: peak-homework-redis
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+
+  database:
+    hostname: database
+    container_name: peak-homework-timescaledb
+    image: timescale/timescaledb:latest-pg16
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    hostname: backend
+    container_name: peak-homework-backend
+    build: ./
+    restart: always
+    ports:
+      - 3000:3000
+    depends_on:
+      - redis
+      - database
+    env_file: "./.env"
+
+volumes:
+  pgdata:
