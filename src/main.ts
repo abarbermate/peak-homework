@@ -7,8 +7,13 @@ import helmet from 'helmet';
 import { AppModule } from '@app/app.module';
 import { ValidationException } from '@app/common/exceptions/validation.exception';
 import { ValidationExceptionFilter } from '@app/common/filters/validation-exception.filter';
+import { runMigrations } from '@app/common/migrations';
 
 async function bootstrap() {
+  if (process.env.RUN_MIGRATIONS_ON_STARTUP === 'true') {
+    await runMigrations();
+  }
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.use(helmet());

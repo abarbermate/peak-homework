@@ -1,6 +1,6 @@
 {
   "name": "peak-homework",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "Homework project for Peak Backend interview",
   "author": "https://github.com/abarbermate",
   "scripts": {
@@ -16,7 +16,11 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prepare": "husky"
+    "prepare": "husky",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "./create-migration.sh",
+    "migration:run": "npx ts-node -r tsconfig-paths/register node_modules/.bin/typeorm migration:run -d src/common/configs/orm.config.ts",
+    "migration:revert": "npx ts-node -r tsconfig-paths/register node_modules/.bin/typeorm migration:revert -d src/common/configs/orm.config.ts"
   },
   "dependencies": {
     "@keyv/redis": "^4.3.3",
