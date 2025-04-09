@@ -1,7 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Test, TestingModule } from '@nestjs/testing';
+import request from 'supertest';
+
+import { AppModule } from '@app/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -12,13 +14,35 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    const config = new DocumentBuilder()
+      .setTitle('Peak Homework')
+      .setDescription('Homework project for Peak Backend interview')
+      .setVersion('1.0.0')
+      .build();
+    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, documentFactory);
+
     await app.init();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  afterEach(async () => {
+    await app.close();
+  });
+
+  describe('GET /health', () => {
+    it('should return health status', () => {
+      return request(app.getHttpServer()).get('/health').expect(200).expect('ok');
+    });
+  });
+
+  describe('GET /api', () => {
+    it('should return Swagger documentation', () => {
+      return request(app.getHttpServer()).get('/api').expect(200).expect('Content-Type', /html/);
+    });
+
+    it('should return Swagger JSON', () => {
+      return request(app.getHttpServer()).get('/api-json').expect(200).expect('Content-Type', /json/);
+    });
   });
 });
