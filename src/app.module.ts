@@ -11,6 +11,7 @@ import CacheConfig, { CacheConfigType } from '@app/common/configs/cache.config';
 import DatabaseConfig, { DatabaseConfigType } from '@app/common/configs/database.config';
 import LoggerConfig from '@app/common/configs/logger.config';
 import { LoggerModule } from '@app/modules/logger/logger.module';
+import { StockQuoteModule } from '@app/modules/stock-quote/stock-quote.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { LoggerModule } from '@app/modules/logger/logger.module';
       useFactory: (configService: ConfigService) => configService.get<DatabaseConfigType>('database') ?? {},
     }),
     LoggerModule,
+    StockQuoteModule,
   ],
   controllers: [AppController],
   providers: [],
