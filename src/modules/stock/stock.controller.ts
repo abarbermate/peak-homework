@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, NotFoundException, Param, Put } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, NotFoundException, Param, Put, StreamableFile } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { StockDto } from '@app/modules/stock/dtos/stock.dto';
@@ -10,7 +10,7 @@ import { StockService } from '@app/modules/stock/stock.service';
 export class StockController {
   constructor(private stockService: StockService) {}
 
-  @ApiOperation({ summary: 'Get stock by symbol', description: 'Returns the stock with the given symbol' })
+  @ApiOperation({ summary: 'Get stock by symbol', description: 'Returns the stock of the given symbol' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Stock found.', type: StockDto })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Stock not found.' })
   @HttpCode(HttpStatus.OK)
@@ -23,6 +23,23 @@ export class StockController {
     }
 
     return new StockDto(stock);
+  }
+
+  @ApiOperation({ summary: 'Get stock chart by symbol', description: 'Returns the stocks chart of the given symbol' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Stock found.', type: StockDto })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Stock not found.' })
+  @HttpCode(HttpStatus.OK)
+  @Get('/:symbol/chart')
+  async chartBySymbol(@Param('symbol') symbol: string): Promise<StreamableFile> {
+    const image = await this.stockService.generateChartImage(symbol);
+
+    if (!image) {
+      throw new NotFoundException('Stock not found or no chart data');
+    }
+
+    return new StreamableFile(image, {
+      type: 'image/png',
+    });
   }
 
   @ApiOperation({ summary: 'Toggle cron jobs', description: 'Start/Stop the periodic checks for the given symbol' })

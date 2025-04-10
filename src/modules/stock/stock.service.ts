@@ -4,6 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
+import { ChartConfiguration } from 'chart.js';
+import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { CronJob } from 'cron';
 import { Repository } from 'typeorm';
 
@@ -37,6 +39,45 @@ export class StockService implements OnModuleDestroy {
         timestamp: 'DESC',
       },
     });
+  }
+
+  async generateChartImage(symbol: string): Promise<Buffer | null> {
+    const chartJSNodeCanvas = new ChartJSNodeCanvas({ width: 800, height: 400 });
+
+    const prices = await this.stockRepository.find({
+      where: { symbol },
+      skip: 9,
+      order: {
+        timestamp: 'ASC',
+      },
+    });
+
+    if (!prices || prices.length === 0) return null;
+
+    const configuration: ChartConfiguration<'line'> = {
+      type: 'line',
+      data: {
+        labels: prices.map((p) => new Date(p.timestamp).toLocaleString()),
+        datasets: [
+          {
+            label: `${symbol} Stock price`,
+            data: prices.map((p) => (p.price ?? 0) / 10 ** 6),
+            fill: false,
+            borderColor: '#4BC0C0FF',
+            tension: 0.1,
+          },
+          {
+            label: `${symbol} SMA`,
+            data: prices.map((p) => (p.sma_last_ten ?? 0) / 10 ** 6),
+            fill: false,
+            borderColor: '#FF8800FF',
+            tension: 0.1,
+          },
+        ],
+      },
+    };
+
+    return chartJSNodeCanvas.renderToBuffer(configuration);
   }
 
   async toggleCronJobs(symbol: string): Promise<ToggleCronStatus> {
